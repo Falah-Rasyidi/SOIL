@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/shop/TextCard.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/shop/TextCard.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { motion } from "framer-motion";
+
+import { getShopItemPriceString } from "../../data/repository";
+
+/**Component for the card format for each product
+ *
+ * @param {*} props
+ * @returns JSX that displays a product
+ */
+const TextCard = (props) => {
+  const { index, item, openShopItemBox } = props;
+  const addToCart = props.addToCart;
+  const buyNow = props.buyNow;
+
+  const { fullPrice, discountedPrice, discountString } =
+    getShopItemPriceString(item);
+  return (
+    &lt;div>
+      &lt;motion.div
+        className="carousel-image"
+        whileHover={{ scale: 1.031 }}
+        whileTap={{ scale: 1.1 }}
+      >
+        &lt;motion.img
+          whileHover={{ scale: 1.031 }}
+          src={item.img_src}
+          alt={item.name}
+          onClick={() => openShopItemBox(index)}
+        />
+      &lt;/motion.div>
+
+      &lt;div>
+        &lt;h2>{item.product_name}&lt;/h2>
+        {/* indicated price, including discount*/}
+        &lt;div className="textcard-price">
+          &lt;span className="dollar-sign">{discountedPrice.currency}&lt;/span>
+          &lt;span className="dollars">{discountedPrice.dollars}&lt;/span>
+          &lt;span className="cents">{discountedPrice.cents}&lt;/span>
+          {/* if there is a discount, show full price as slashed */}
+          {item.discount > 0 &amp;&amp; (
+            &lt;>
+              &lt;span className="full-price-slashed">
+                &lt;span className="slashed-dollar-sign">
+                  {fullPrice.currency}
+                &lt;/span>
+                &lt;span className="slashed-dollars">{fullPrice.dollars}&lt;/span>
+                &lt;span className="slashed-cents">{fullPrice.cents}&lt;/span>
+              &lt;/span>
+              &lt;span className="discount">{discountString}&lt;/span>
+            &lt;/>
+          )}
+        &lt;/div>
+      &lt;/div>
+      &lt;hr />
+      &lt;div className="card-content-details">
+        {/* Tag content of text cards */}
+        &lt;div className="card-content-tags">
+          &lt;ul>
+            {JSON.parse(item.tags).map((tag, tagIndex) => (
+              &lt;li key={tagIndex}>{tag}&lt;/li>
+            ))}
+          &lt;/ul>
+        &lt;/div>
+        &lt;div className="card-content-submit">
+          {localStorage.getItem("user") !== null ? (
+            // If shopitem does not have stock change add to cart to out of stock
+            item.stock ? (
+              &lt;button
+                className="btn btn-primary card-content-buttons"
+                onClick={() => addToCart(item)}
+              >
+                Add to Cart
+              &lt;/button>
+            ) : (
+              &lt;button className="btn btn-secondary" disabled>
+                Out of Stock
+              &lt;/button>
+            )
+          ) : (
+            &lt;button className="btn btn-secondary" disabled>
+              Log in to purchase
+            &lt;/button>
+          )}
+          {localStorage.getItem("user") ? (
+            // If shopitem does not have stock, remove buy now button
+            item.stock ? (
+              &lt;button
+                className="btn btn-warning card-content-buttons"
+                onClick={() => buyNow(item)}
+              >
+                Buy Now
+              &lt;/button>
+            ) : (
+              ""
+            )
+          ) : (
+            ""
+          )}
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default TextCard;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Carousel">Carousel</a></li><li><a href="global.html#Cart">Cart</a></li><li><a href="global.html#CartBox">CartBox</a></li><li><a href="global.html#CartItems">CartItems</a></li><li><a href="global.html#CartPage">CartPage</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#LoginBox">LoginBox</a></li><li><a href="global.html#LoginPage">LoginPage</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ProfileChange">ProfileChange</a></li><li><a href="global.html#Purchase">Purchase</a></li><li><a href="global.html#Shop">Shop</a></li><li><a href="global.html#ShopItemBox">ShopItemBox</a></li><li><a href="global.html#Signup">Signup</a></li><li><a href="global.html#Summary">Summary</a></li><li><a href="global.html#TextCard">TextCard</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sun Jun 02 2024 23:20:14 GMT+1000 (Australian Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

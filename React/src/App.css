@@ -1,0 +1,716 @@
+/* Font logo */
+.font-logo {
+  font-family: logo;
+  font-size: 70px;
+  padding: 10px 0px;
+}
+.icon-loading {
+  margin: 40px;
+}
+@font-face {
+  font-family: logo;
+  src: url("../public/fonts/dm-serif-display/DMSerifDisplay-Regular.ttf");
+}
+
+/* Margins for each page */
+.frame {
+  margin: 0px auto 28px auto;
+  padding: 62px 22.5% 48px;
+}
+/* Media query for laptop-sized screens */
+@media (max-width: 1366px) {
+  .frame {
+    padding: 62px 10% 48px; /* Adjust padding for laptop screens */
+  }
+}
+
+/* Escape hatch (in logo) */
+.escape-hatch a {
+  text-decoration: none;
+  height: fit-content;
+  width: fit-content;
+  transition: 0.2s;
+  color: white;
+}
+.escape-hatch a:hover {
+  transition: 0.1s;
+  color: #a39171;
+}
+
+/* Navbar specific css */
+.navbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  position: sticky;
+  padding: 19.9px 0px;
+  top: 0;
+  z-index: 2;
+}
+.navbar-items-center {
+  display: flex;
+  align-items: center;
+}
+.navbar .navbar-items-left,
+.navbar .navbar-items-right {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  padding: 0vw 1.5vw;
+  width: 37vw;
+}
+.navbar ol {
+  list-style: none;
+  margin: 1px 0;
+  padding: 0;
+}
+.navbar ol li {
+  display: inline;
+  margin: 10px; /* button spacing */
+}
+.navbar ol li a {
+  color: #fff; /* font colour */
+  text-decoration: none; /* Remove underline */
+  transition: 0.2s;
+}
+.navbar ol li a:hover {
+  transition: 0.1s;
+  color: #a39171;
+}
+.fa-cart-shopping {
+  color: #fff;
+  transition: 0.2s;
+}
+.fa-cart-shopping:hover {
+  transition: 0.1s;
+  color: #a39171;
+}
+.navbar a {
+  text-decoration: none; /* Remove underline */
+}
+#user {
+  padding: 0 15px;
+  color: white;
+}
+
+/* Price display css */
+.box-price {
+  color: #fff;
+  margin: 10px;
+}
+.textcard-price {
+  color: #000000;
+  margin: 10px;
+}
+.dollar-sign {
+  vertical-align: top;
+  font-size: 12px;
+}
+.dollars {
+  font-weight: 500;
+  font-size: 30px;
+}
+.cents {
+  vertical-align: top;
+  font-size: 15px;
+}
+.full-price-slashed {
+  color: #64635f;
+  opacity: 0.5;
+}
+.full-price-slashed-white {
+  color: #8d8b88;
+  opacity: 0.5;
+}
+.slashed-dollar-sign {
+  text-decoration: line-through;
+
+  font-size: 9px;
+}
+.slashed-dollars {
+  text-decoration: line-through;
+  font-weight: 500;
+  font-size: 15px;
+}
+.slashed-cents {
+  text-decoration: line-through;
+
+  font-size: 9px;
+}
+.discount {
+  font-size: 13px;
+  background-color: #be3b3b;
+  color: #fff;
+  margin-left: 7px;
+  padding: 1px 7px;
+  border-radius: 5px;
+}
+/* ModalBox css */
+.box-row-review {
+  background-color: #273428;
+  height: 40%;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+.box-row-review-title {
+  background: #273428;
+  height: 15%;
+  color: #fff;
+}
+/* Styling for reviews button */
+.box-row-review-title-items {
+  display: flex;
+  flex-direction: row;
+}
+.box-row-review-title h4 {
+  padding: 0.6%;
+  padding-bottom: 0%;
+  margin: 0;
+}
+.box-row-review-title hr {
+  margin: 0 0.7%;
+  padding: 0;
+}
+.box-row-review-description {
+  color: #fff;
+  height: 85%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}
+.box-row {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+}
+.box-row-product {
+  display: flex;
+  flex-direction: row;
+  height: 60%;
+  width: 100%;
+}
+.box-col-left,
+.box-col-right {
+  flex-direction: column;
+}
+.review-description-column {
+  background: #222d23;
+  padding: 1.4%;
+  overflow-y: auto;
+  width: 49%;
+}
+.review-description-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.review-description-title-buttons {
+  display: flex;
+  flex-direction: row;
+}
+.review-description-column-subtitle {
+  display: flex;
+  flex-direction: row;
+}
+.review-description-column-subtitle-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 4px;
+  height: 32px;
+  width: 32px;
+  border-radius: 32px;
+  overflow: hidden;
+}
+.review-description-column-subtitle-img img {
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+.review-author {
+  font-size: small;
+  color: #ffffff98;
+}
+.review-description-column-subtitle-text {
+  display: flex;
+  flex-direction: column;
+}
+.review-description-column-subtitle-text h6 {
+  margin: 0;
+}
+
+.review-description-row {
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: row;
+  height: 80%;
+}
+.review-description-row-pagination {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 20%;
+}
+/* CSS to change the pagination buttons */
+.MuiPagination-root {
+  button {
+    color: #fff;
+    border-color: #ffffff6f;
+  }
+}
+.box-description {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.box-col-right {
+  color: #fff;
+  width: 68%;
+  padding: 2%;
+  overflow-y: auto;
+}
+.box-form {
+  background-color: #273428;
+  width: 30%;
+  padding: 1% 1%;
+  display: flex;
+  flex-direction: column;
+  border-top-right-radius: 10px;
+}
+.box-form button,
+.box-form input {
+  border-radius: 10px;
+  margin: 3px 10px;
+}
+.box-image {
+  display: flex; /* Use flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  position: relative;
+  overflow: hidden;
+  width: 350px; /* Adjust the width as needed */
+  height: 100%; /* Adjust the height as needed */
+}
+.box-image img {
+  border-top-left-radius: 10px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Zoom in to cover and crop if necessary */
+  overflow: hidden;
+}
+.dropin-box {
+  overflow: auto;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  background-color: #464e47;
+  border-radius: 12px;
+  width: clamp(40vw, 700px, 90vw);
+  height: clamp(30vh, 400px, 75vh);
+}
+.popup-box {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  background-color: #394a3a;
+  border-radius: 12px;
+  width: clamp(70vw, 700px, 90vw);
+  height: clamp(50vh, 800px, 90vh);
+}
+.backdrop {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+  z-index: 999; /* Ensure it appears above other content */
+}
+
+/* Structuring of pages, rows and columns of content */
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.row {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+}
+.column-content {
+  display: flex;
+  flex-direction: column;
+  margin: 3% 0%;
+  padding: 0% 20%;
+}
+.row-content {
+  display: flex;
+  flex-direction: row;
+  margin: 3% 0%;
+  padding: 0% 25%;
+}
+.primary-colour {
+  background-color: #464e47;
+}
+.secondary-colour {
+  background-color: #394a3a;
+}
+.ternary-colour {
+  background-color: #6f8b6e;
+}
+.quaternary-colour {
+  background-color: #ccfccb;
+}
+.space-evenly {
+  justify-content: space-evenly;
+}
+.fatal-error {
+  color: darkred;
+}
+
+/* Header specific css */
+.header {
+  z-index: 2;
+  position: relative;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Footer specific css */
+.footer {
+  background-color: #335;
+  color: #fff;
+  text-align: left;
+  padding: 0.5cm 0 170px 0;
+  width: 100%;
+}
+.footer ol {
+  list-style: none;
+  padding-left: 0px;
+}
+.footer ol li {
+  margin: 10px; /* button spacing */
+}
+.footer ol li a {
+  color: #fff; /* font colour */
+  text-decoration: none; /* Remove underline */
+  transition: 0.2s;
+}
+.footer ol li a:hover {
+  transition: 0.1s;
+  color: #a39171;
+}
+.footer-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+.footer-left {
+  margin-right: 2cm;
+}
+.footer-right {
+  margin-left: 2cm;
+}
+.footer-smalltext {
+  color: rgba(210, 210, 210, 0.25);
+}
+
+/* Splash image */
+.background-video {
+  padding: 0px;
+  background-color: #394a3a;
+  background-image: url("../public/pexel-leaves.gif");
+  background-size: cover;
+  min-height: calc(100vh - (152px + 66px));
+  line-height: calc(100vh - (152px + 66px));
+  font-size: 60px;
+  text-align: center;
+  color: #a39171;
+}
+.video-border {
+  width: 100%;
+  height: 66px;
+  background-color: #394a3a;
+}
+
+/* Carousel css */
+.carousel-button {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.left-button,
+.right-button {
+  position: absolute;
+  width: 4%;
+  height: 5%;
+}
+.left-button {
+  left: 0;
+}
+.right-button {
+  right: 0;
+}
+.carousel-image {
+  display: flex; /* Use flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  position: relative;
+  overflow: hidden;
+  width: 100%; /* Adjust the width as needed */
+  height: 200px; /* Adjust the height as needed */
+  border-radius: 10px;
+}
+.carousel-image img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+
+  object-fit: cover; /* Zoom in to cover and crop if necessary */
+}
+.textcard {
+  display: flex;
+  flex-direction: column;
+  margin: 0 1%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
+  height: 100%;
+  border: solid rgba(255, 255, 255, 1);
+  width: 100%;
+}
+.card-content-container {
+  height: 50vh;
+}
+.card-content {
+  height: 100%;
+  padding: 0.25cm;
+}
+.card-content-details {
+  display: flex;
+  height: 200px;
+  flex-direction: column;
+  justify-content: space-between; /* Align items to the bottom */
+}
+.card-content-tags,
+.card-content-tags ul {
+  overflow: hidden;
+
+  padding: 0;
+  margin: 0;
+}
+.card-content-submit {
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  flex-direction: row;
+  height: auto;
+}
+.card-content-tags {
+  display: flex;
+}
+.card-content h2 {
+  margin: 0cm;
+}
+.card-content p {
+  margin: 0cm;
+}
+.card-content hr {
+  margin: 0.25cm 0cm;
+}
+.card-content li {
+  margin-left: 0.5cm;
+}
+
+/* Login component css */
+.frame-login {
+  background-color: #464e47;
+  color: #fff;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  padding: 62px 25% 48px;
+}
+.frame-cart {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  padding: 10px 3% 20px;
+}
+.checkout-button {
+  display: flex;
+  flex-direction: row-reverse;
+}
+.form-group {
+  margin-right: 10%;
+}
+.register-form ul {
+  padding-left: 20px;
+}
+
+/* Profile page */
+.profile-background {
+  height: 6cm;
+  background-image: url("data/images/unsplash_gradient.jpg");
+  background-position: center;
+  background-size: cover;
+}
+.profile-picture {
+  position: absolute;
+  padding: 3cm;
+  background-image: url("data/images/avatars/uifaces_avatar1.jpg");
+  background-size: cover;
+  background-color: white;
+  border-radius: 100%;
+  top: calc(152px + 66px + 3cm);
+  right: 63.5%;
+  z-index: 0;
+}
+.profile {
+  display: flex;
+  justify-content: center;
+  padding: 1cm 16.67% 1.5cm;
+  min-height: 15cm;
+  background-color: #ccfccb;
+  overflow: auto;
+}
+.profile-content {
+  position: relative;
+  padding: 0.3cm;
+  height: inherit;
+  width: 100%;
+}
+.profile-essentials {
+  float: left;
+  width: 32%;
+  height: 100%;
+  border-radius: 5px;
+}
+.essentials-text {
+  position: relative;
+  padding: 0.5cm;
+  width: 100%;
+  height: auto;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
+  border: solid rgba(255, 255, 255, 1);
+  top: 2cm;
+
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  font-size: 25px;
+  text-align: center;
+}
+.essentials-text h4 {
+  color: grey;
+}
+.profile-optionals {
+  display: flex;
+  float: right;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 66%;
+  min-height: inherit;
+  border-radius: 5px;
+}
+.profile-headline,
+.profile-bio,
+.profile-interests {
+  overflow-wrap: break-word;
+  margin: 0.25cm 0cm;
+  padding: 0.5cm;
+  height: 31%;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
+  border: solid rgba(255, 255, 255, 1);
+}
+.profile-favourites {
+  margin: 0.25cm 0cm;
+  padding: 0.5cm;
+  height: 31%;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
+  border: solid rgba(255, 255, 255, 1);
+}
+.profile-buttons button {
+  float: right;
+  margin: 0.25cm;
+}
+
+/* Profile change */
+.profile-change {
+  float: right;
+}
+.profile-change-titles {
+  display: inline;
+}
+.profile-change-small-text {
+  font-size: 14px;
+  display: inline;
+  margin-left: 0.5cm;
+  color: grey;
+}
+/* .invalid-feedback {
+  display: block;
+} */
+
+/* GrowInformation component */
+.dropdown-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+.dropdown-list a {
+  font-size: 20px;
+}
+.dropdown-list li {
+  cursor: pointer;
+  border-radius: 15px;
+  padding: 1%;
+  margin: 1%;
+  width: 96%;
+  color: #fff;
+  background-color: #394a3a;
+}
+.dropdown-list-div {
+  display: flex;
+  flex-direction: row;
+}
+.dropdown-list-description {
+  text-align: justify;
+  margin-right: 0.5cm;
+  width: 50%;
+}
+.dropdown-list-tags {
+  padding: 0cm 0.5cm;
+  align-self: center;
+  line-height: 200%;
+  border-left: 2px solid grey;
+  width: 50%;
+}
+
+/* Purchase page */
+.purchase {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 6cm;
+}
+
+/* Diet profile */
+.diet-basic-information,
+.diet-goals {
+  display: flex;
+  justify-content: space-around;
+  height: 100%;
+}

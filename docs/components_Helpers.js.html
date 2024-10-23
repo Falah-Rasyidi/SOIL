@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Helpers.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Helpers.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState, useContext } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Button } from "@mui/material";
+
+import { Cart } from "./cart";
+import { Login } from "./login";
+
+import { currentSessionContext } from "../contexts/currentSessionContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { growableItems } from "../data/shop_repo";
+import { getCurrentUser } from "../data/repository";
+
+import ReviewPagination from "./shop/ReviewPagination";
+
+/**
+ * -----------------------------------
+ * THESE ARE STRUCTURAL COMPONENTS
+ * -----------------------------------
+ */
+/**
+ *
+ * @returns {jsx} header jsx
+ */
+export const Header = () => {
+  return (
+    &lt;div>
+      &lt;header className="header primary-colour">
+        &lt;h1 className="font-logo escape-hatch">
+          &lt;Link to="/">SOIL&lt;/Link>
+        &lt;/h1>
+      &lt;/header>
+    &lt;/div>
+  );
+};
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for navbar
+ */
+export const Navbar = (props) => {
+  // JSX for links
+  const textLinkItem = (text, link) => {
+    return (
+      &lt;motion.div whileHover={{ scale: 1.3 }}>
+        &lt;li>
+          &lt;Link to={`/${link}`}>{text}&lt;/Link>
+        &lt;/li>
+      &lt;/motion.div>
+    );
+  };
+  const iconLinkItem = (iconName, link) => {
+    return (
+      &lt;motion.div whileHover={{ scale: 1.5 }}>
+        &lt;Link to={`/${link}`}>
+          &lt;FontAwesomeIcon icon={iconName} />
+        &lt;/Link>
+      &lt;/motion.div>
+    );
+  };
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+
+  const user = JSON.parse(getCurrentUser());
+
+  const [loginBoxOpen, setLoginBoxOpen] = useState(false);
+  const openLoginBox = () => setLoginBoxOpen(true);
+  const closeLoginBox = () => setLoginBoxOpen(false);
+
+  const [cartBoxOpen, setCartBoxOpen] = useState(false);
+  const openCartBox = () => {
+    console.log("cartBox state was clicked on");
+    setCartBoxOpen(true);
+  };
+  const closeCartBox = () => setCartBoxOpen(false);
+
+  return (
+    &lt;div className="navbar secondary-colour">
+      {/* Backdrop and dropin boxes */}
+      &lt;AnimatePresence>
+        {loginBoxOpen &amp;&amp; (
+          &lt;LoginBox isOpen={loginBoxOpen} handleClose={closeLoginBox} />
+        )}
+      &lt;/AnimatePresence>
+      &lt;AnimatePresence>
+        {cartBoxOpen &amp;&amp; (
+          &lt;CartBox isOpen={cartBoxOpen} handleClose={closeCartBox} />
+        )}
+      &lt;/AnimatePresence>
+
+      {/* Navigation items */}
+      {/* Left of navbar */}
+      &lt;ol className="navbar-items-left">&lt;/ol>
+      {/* Center of navbar */}
+      &lt;ol className="navbar-items-center">
+        {textLinkItem("Home", "")}
+        {textLinkItem("Shop", "shop")}
+        {JSON.parse(getCurrentUser())
+          ? textLinkItem("My Diet Profile ", "DietPlanInput")
+          : ""}
+      &lt;/ol>
+      {/* Right of navbar */}
+      &lt;ol className="navbar-items-right">
+        {/* If current cart is not empty, show shopping cart icon */}
+        {/* {cart_repo.getCurrentCart() ? (
+          &lt;motion.div whileHover={{ scale: 1.5 }} style={{ cursor: "pointer" }}>
+            &lt;FontAwesomeIcon
+              onClick={() => (cartBoxOpen ? closeCartBox() : openCartBox())}
+              icon={faCartShopping}
+            >&lt;/FontAwesomeIcon>
+          &lt;/motion.div>
+        ) : (
+          ""
+        )} */}
+        {/* Login/profile button */}
+        &lt;motion.div whileHover={{ scale: 1.2 }}>
+          {user !== null ? (
+            &lt;Link to="/profile">
+              &lt;li id="user">
+                Welcome, &lt;b>{user.username}&lt;/b>
+              &lt;/li>
+            &lt;/Link>
+          ) : (
+            &lt;Link
+              onClick={() => (loginBoxOpen ? closeLoginBox() : openLoginBox())}
+            >
+              &lt;li id="user">Login&lt;/li>
+            &lt;/Link>
+          )}
+        &lt;/motion.div>
+      &lt;/ol>
+    &lt;/div>
+  );
+};
+/**
+ *
+ * @returns {jsx} footer jsx
+ */
+export const Footer = () => {
+  return (
+    &lt;div>
+      &lt;footer className="footer">
+        &lt;div className="footer-row">
+          &lt;span className="font-logo">SOIL&lt;/span>
+          &lt;div className="footer-row">
+            &lt;div className="footer-left">
+              &lt;ol>
+                &lt;li>
+                  &lt;Link to="/">Home&lt;/Link>
+                &lt;/li>
+                &lt;li>
+                  &lt;Link to="/login">Login&lt;/Link>
+                &lt;/li>
+                &lt;li>
+                  &lt;Link to="/shop">Shop&lt;/Link>
+                &lt;/li>
+              &lt;/ol>
+            &lt;/div>
+            &lt;div className="footer-right">
+              &lt;ol>
+                &lt;li>
+                  &lt;Link to="/">Home&lt;/Link>
+                &lt;/li>
+                &lt;li>
+                  &lt;Link to="/login">Login&lt;/Link>
+                &lt;/li>
+                &lt;li>
+                  &lt;Link to="/shop">Shop&lt;/Link>
+                &lt;/li>
+              &lt;/ol>
+            &lt;/div>
+          &lt;/div>
+        &lt;/div>
+        &lt;div className="footer-row">
+          &lt;p className="footer-smalltext">
+            Copyright &amp;copy; 2024 Natchanon Laoharawee, Falah Rasyidi
+          &lt;/p>
+        &lt;/div>
+      &lt;/footer>
+    &lt;/div>
+  );
+};
+
+/**
+ *
+ * @returns {jsx} list of growable products
+ */
+export const GrowInformation = () => {
+  // State to track the active dropdown index
+  const [activeDropdownIndex, setActiveDropdownIndex] = useState(-1);
+  // Function to toggle the dropdown
+  const toggleDropdown = (index) => {
+    if (activeDropdownIndex === index) {
+      setActiveDropdownIndex(-1);
+    } else {
+      setActiveDropdownIndex(index);
+    }
+  };
+
+  return (
+    &lt;div className="row ternary-colour">
+      &lt;motion.div
+        className="column-content"
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1, transition: { duration: 1.3 } }}
+      >
+        {/* Header */}
+        &lt;h1>Let's grow vegetables together!&lt;/h1>
+        &lt;hr />
+        &lt;div className="dropdown-list">
+          &lt;ul>
+            {/* Mapping over growableItems array */}
+            {growableItems.map((item, index) => (
+              &lt;motion.li
+                key={index}
+                onClick={() => toggleDropdown(index)}
+                whileHover={{ scale: 1.05 }}
+              >
+                &lt;a>{item.name}&lt;/a>
+                &lt;hr style={{ margin: "3px" }}>&lt;/hr>
+                &lt;AnimatePresence>
+                  {activeDropdownIndex === index &amp;&amp; (
+                    &lt;div className="dropdown-list-div">
+                      &lt;motion.p
+                        className="dropdown-list-description"
+                        initial={{ y: -15, opacity: 0 }}
+                        animate={{
+                          y: 0,
+                          opacity: 1,
+                          transition: { duration: 1.3 },
+                        }}
+                        exit={{ y: -15, opacity: 0 }}
+                      >
+                        {item.description}
+                      &lt;/motion.p>
+                      {/* Move the table outside of the &lt;p> element */}
+                      &lt;motion.div
+                        className="dropdown-list-tags"
+                        initial={{ y: -15, opacity: 0 }}
+                        animate={{
+                          y: 0,
+                          opacity: 1,
+                          transition: { duration: 1.3 },
+                        }}
+                        exit={{ y: -15, opacity: 0 }}
+                      >
+                        {/* Table descriptions */}
+                        &lt;table className="table-success text-white">
+                          &lt;tbody>
+                            &lt;tr>
+                              &lt;th scope="row">Watering interval: &lt;/th>
+                              &lt;td>{item.feeding}&lt;/td>
+                            &lt;/tr>
+                            &lt;tr>
+                              &lt;th scope="row">Ideal humidity: &lt;/th>
+                              &lt;td>{item.humidity}&lt;/td>
+                            &lt;/tr>
+                            &lt;tr>
+                              &lt;th scope="row">Individual spacing: &lt;/th>
+                              &lt;td>{item.spacing}&lt;/td>
+                            &lt;/tr>
+                            &lt;tr>
+                              &lt;th scope="row">Months to plant: &lt;/th>
+                              &lt;td>{item.months}&lt;/td>
+                            &lt;/tr>
+                          &lt;/tbody>
+                        &lt;/table>
+                      &lt;/motion.div>
+                    &lt;/div>
+                  )}
+                &lt;/AnimatePresence>
+              &lt;/motion.li>
+            ))}
+          &lt;/ul>
+        &lt;/div>
+      &lt;/motion.div>
+    &lt;/div>
+  );
+};
+
+/**
+ * -----------------------------------
+ * HELPER FUNCTIONS
+ * -----------------------------------
+ */
+/**
+ * Expects an object that only has attributes that contain strings
+ * @param {*} inputFields
+ * @returns an object that have the same attributes and strings
+ * without trailing and leading whitespace characters
+ */
+export const trimFields = (inputFields) => {
+  const trimmedInputFields = {};
+  Object.keys(inputFields).map(
+    (key) => (trimmedInputFields[key] = inputFields[key].trim())
+  );
+  return trimmedInputFields;
+};
+/**
+ * Expects an object that only has attributes that contain strings
+ * @param {*} inputFields
+ * @returns an object that has the same attributes as the one passed
+ * and puts an empty array for each of the attributes
+ */
+export const initFieldsErrors = (inputFields) => {
+  return Object.fromEntries(Object.keys(inputFields).map((key) => [key, []]));
+};
+export const FieldRequirementsBox = (focus) => {
+  switch (focus) {
+    case "username":
+      return (
+        /**
+         * ALLOWED:
+         * - 1 Upper/ 1 lower case letters   (A-Z) | (a-z)
+         * - 1 Digits                     (0-9)
+         * - 1 Special characters         (~`!@#$%^&amp;*()+=_-{}[]\|:;”’?/&lt;>,.)
+         * - Greater than twelve characters
+         *
+         * NOT ALLOWED:
+         * - Length shorter than twelve characters
+         */
+        &lt;div className="m-3 p-3 bg-success bg-opacity-25 border border-secondary rounded">
+          &lt;h4>Username Requirements&lt;/h4>
+          &lt;ul>
+            &lt;li>Must be between 6 to 20 characters (inclusive)&lt;/li>
+          &lt;/ul>
+          &lt;span>May contain:&lt;/span>
+          &lt;ul>
+            &lt;li>Upper and lower case characters&lt;/li>
+            &lt;li>Digits&lt;/li>
+            &lt;li>Special characters&lt;/li>
+          &lt;/ul>
+        &lt;/div>
+      );
+    case "email":
+      return (
+        /**
+         * ALLOWED:
+         * - In the format &lt;username>@&lt;emailprovider>
+         *
+         * NOT ALLOWED:
+         * - Anything else
+         */
+        &lt;div className="m-3 p-3 bg-success bg-opacity-25 border border-secondary rounded">
+          &lt;h4>Email Requirements&lt;/h4>
+          &lt;span>In the format:&lt;/span>
+          &lt;ul>
+            &lt;li>&amp;lt;username&amp;gt;@&amp;lt;email_provider&amp;gt;&lt;/li>
+          &lt;/ul>
+        &lt;/div>
+      );
+    case "password":
+      return (
+        &lt;div className="m-3 p-3 bg-success bg-opacity-25 border border-secondary rounded">
+          &lt;h4>Password Requirements&lt;/h4>
+          &lt;ul>
+            &lt;li>Must have at least twelve characters&lt;/li>
+            &lt;li>Must contain at least one uppercase (A-Z)&lt;/li>
+            &lt;li>Must contain at least one lowercase character (a-z)&lt;/li>
+            &lt;li>
+              Must contain at least one special character (/|&amp;lt;&amp;gt;,.?])
+            &lt;/li>
+            &lt;li>Must contain at least one number (0-9)&lt;/li>
+          &lt;/ul>
+        &lt;/div>
+      );
+    default:
+      return;
+  }
+};
+
+/**
+ * -----------------------------------
+ * MODAL ANIMATION COMPONENTS
+ * -----------------------------------
+ */
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for modal shop item pop up
+ */
+export const ShopItemBox = (props) => {
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+
+  const { item, handleClose } = props;
+  const [quantity, setQuantity] = useState(1);
+
+  const buyNow = props.buyNow;
+  const addToCart = props.addToCart;
+
+  const { fullPrice, discountedPrice, discountString } =
+    cart_repo.getShopItemPriceString(item);
+
+  return (
+    &lt;motion.div
+      onClick={handleClose}
+      className="backdrop"
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: 1,
+        transition: {
+          duration: 0.7,
+        },
+      }}
+      exit={{ opacity: 0 }}
+    >
+      &lt;motion.div
+        onClick={(e) => e.stopPropagation()}
+        className="popup-box"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          transition: {
+            duration: 10,
+            type: "spring",
+            damping: 40,
+            stiffness: 250,
+          },
+        }}
+        exit={{ opacity: 0, scale: 0 }}
+      >
+        &lt;div className="box-row-product">
+          &lt;div className="box-col-left">
+            &lt;div className="box-image">
+              &lt;img src={item.img_src} alt={item.name} />
+            &lt;/div>
+          &lt;/div>
+          &lt;div className="box-description">
+            &lt;div className="box-col-right">
+              &lt;h1>{item.product_name}&lt;/h1>
+              &lt;hr>&lt;/hr>
+              &lt;ul>
+                {JSON.parse(item.tags).map((tag, tagIndex) => (
+                  &lt;li key={tagIndex}>{tag}&lt;/li>
+                ))}
+              &lt;/ul>
+              &lt;p>{item.description}&lt;/p>
+            &lt;/div>
+            &lt;form className="box-form">
+              {/* indicated price, including discount*/}
+              &lt;div className="box-price">
+                &lt;span className="dollar-sign">{discountedPrice.currency}&lt;/span>
+                &lt;span className="dollars">{discountedPrice.dollars}&lt;/span>
+                &lt;span className="cents">{discountedPrice.cents}&lt;/span>
+                {/* if there is a discount, show full price as slashed */}
+                {item.discount > 0 &amp;&amp; (
+                  &lt;>
+                    &lt;span className="full-price-slashed-white">
+                      &lt;span className="slashed-dollar-sign">
+                        {fullPrice.currency}
+                      &lt;/span>
+                      &lt;span className="slashed-dollars">
+                        {fullPrice.dollars}
+                      &lt;/span>
+                      &lt;span className="slashed-cents">{fullPrice.cents}&lt;/span>
+                    &lt;/span>
+                    &lt;span className="discount">{discountString}&lt;/span>
+                  &lt;/>
+                )}
+              &lt;/div>
+              {/* Quantity */}
+              &lt;input
+                type="number"
+                min="1"
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value))}
+              />
+              {/* Add to cart button */}
+              {cart_repo.getCurrentCart() !== null ? (
+                item.stock ? (
+                  &lt;button
+                    type="button"
+                    className="btn btn-primary card-content-buttons"
+                    onClick={() => addToCart(item, quantity)}
+                  >
+                    Add to Cart
+                  &lt;/button>
+                ) : (
+                  &lt;button className="btn btn-secondary" disabled>
+                    Out of Stock
+                  &lt;/button>
+                )
+              ) : (
+                &lt;button className="btn btn-secondary" disabled>
+                  Log in to purchase
+                &lt;/button>
+              )}
+              {/* Buy now button */}
+              {cart_repo.getCurrentCart() !== null ? (
+                item.stock ? (
+                  &lt;button
+                    type="button"
+                    className="btn btn-warning card-content-buttons"
+                    onClick={() => buyNow(item, quantity)}
+                  >
+                    Buy Now
+                  &lt;/button>
+                ) : (
+                  ""
+                )
+              ) : (
+                ""
+              )}
+            &lt;/form>
+          &lt;/div>
+        &lt;/div>
+        &lt;div className="box-row-review">
+          &lt;div className="box-row-review-title">
+            &lt;div className="box-row-review-title-items">
+              &lt;h4>Reviews&lt;/h4>
+              {/* Write review button */}
+              &lt;Button
+                size="small"
+                variant="text"
+                sx={{ textTransform: "none", color: "#4392F1" }}
+              >
+                &lt;span>Write review&lt;/span>
+              &lt;/Button>
+            &lt;/div>
+
+            &lt;hr>&lt;/hr>
+          &lt;/div>
+          &lt;ReviewPagination />
+        &lt;/div>
+      &lt;/motion.div>
+    &lt;/motion.div>
+  );
+};
+
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for modal user login box
+ */
+export const LoginBox = (props) => {
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+  // isOpen is true or false state, handleClose is a function that changes isOpen to false.
+  const { handleClose, isOpen } = props;
+  return (
+    &lt;motion.div
+      onClick={handleClose}
+      className="backdrop"
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: 1,
+        transition: {
+          duration: 0.7,
+        },
+      }}
+      exit={{ opacity: 0 }}
+    >
+      &lt;motion.div
+        onClick={(e) => e.stopPropagation()}
+        className="dropin-box"
+        initial={{ y: -500, opacity: 0 }}
+        animate={{
+          y: 0,
+          opacity: 1,
+          transition: {
+            duration: 10,
+            type: "spring",
+            damping: 40,
+            stiffness: 250,
+          },
+        }}
+        exit={{ y: -500, opacity: 0 }}
+      >
+        &lt;Login loginBoxOpen={isOpen} closeLoginBox={handleClose} />
+      &lt;/motion.div>
+    &lt;/motion.div>
+  );
+};
+
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for modal shopping cart box
+ */
+export const CartBox = (props) => {
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+  const { handleClose, isOpen } = props;
+  return (
+    &lt;motion.div
+      onClick={handleClose}
+      className="backdrop"
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: 1,
+        transition: {
+          duration: 0.7,
+        },
+      }}
+      exit={{ opacity: 0 }}
+    >
+      &lt;motion.div
+        onClick={(e) => e.stopPropagation()}
+        className="dropin-box"
+        style={{ backgroundColor: "#fff" }}
+        initial={{ y: -500, opacity: 0 }}
+        animate={{
+          y: 0,
+          opacity: 1,
+          transition: {
+            duration: 10,
+            type: "spring",
+            damping: 40,
+            stiffness: 250,
+          },
+        }}
+        exit={{ y: -500, opacity: 0 }}
+      >
+        &lt;Cart cartBoxOpen={isOpen} closeCartBox={handleClose} />
+      &lt;/motion.div>
+    &lt;/motion.div>
+  );
+};
+
+/**
+ * -----------------------------------
+ * NOTIFICATION COMPONENTS
+ * -----------------------------------
+ */
+// Custom hook to manage notification state
+export const useNotification = (initialState = "") => {
+  const [notification, setNotification] = useState(initialState);
+
+  // Function to handle notifications
+  function handleNotification(open) {
+    switch (open) {
+      case "login":
+        setNotification("login");
+        break;
+      case "signup":
+        setNotification("signup");
+        break;
+      case "changedetails":
+        setNotification("changedetails");
+        break;
+      case "delete":
+        setNotification("delete");
+        break;
+      case "logoff":
+        setNotification("logoff");
+        break;
+      case "purchase":
+        setNotification("purchase");
+        break;
+      default:
+        setNotification("");
+        break;
+    }
+  }
+
+  return [notification, handleNotification];
+};
+
+// String message conditions
+/**
+ *
+ * @param {*} notification
+ * @returns {string} returns a string to display for snackbar notification
+ */
+export const getMessage = (notification) => {
+  switch (notification) {
+    case "login":
+      return "Successfully logged in!";
+    case "signup":
+      return "Successfully signed up!";
+    case "changedetails":
+      return "Saved changes!";
+    case "delete":
+      return "Account successfully deleted!";
+    case "logoff":
+      return "Logged off successfully!";
+    case "purchase":
+      return "Thank you for your purchase!";
+    default:
+      return "";
+  }
+};
+
+/**
+ * -----------------------------------
+ * USEREDUCER COMPONENTS
+ * -----------------------------------
+ */
+/**
+ *
+ * @param {*} state
+ * @param {*} action
+ * @returns state reducer for input fields
+ */
+export const inputFieldsReducer = (state, action) => {
+  switch (action.type) {
+    case "UPDATE_FIELD":
+      return {
+        ...state,
+        [action.field]: action.value,
+      };
+    case "SET_INPUT_FIELDS":
+      let inputFields = action.value;
+      return inputFields;
+    default:
+      // Put an error into console if unknown action
+      try {
+        throw new Error("Unknown action: ${action.type}");
+      } catch (error) {
+        console.error(error);
+      }
+  }
+};
+/**
+ * A reducer that keeps track of fields that have been touched
+ * @param {*} state
+ * @param {*} action
+ */
+export const touchedFieldsReducer = (state, action) => {
+  switch (action.type) {
+    case "SET_TOUCHED_FIELD":
+      return {
+        ...state,
+        [action.touchedField]: true,
+      };
+    default:
+      // Put an error into console if unknown action
+      try {
+        throw new Error("Unknown action: ${action.type}");
+      } catch (error) {
+        console.error(error);
+      }
+  }
+};
+/**
+ *
+ * @param {*} state
+ * @param {*} action takes products parameter, expecting an array of products
+ * @returns state reducer for products
+ */
+export const productsReducer = (state, action) => {
+  try {
+    switch (action.type) {
+      case "SET_ALL_PRODUCTS":
+        // change state to all products
+        return action.products;
+      case "SET_DISCOUNTED_PRODUCTS":
+        // change state to discounted products
+        const discountedProducts = [];
+        for (const item of action.products) {
+          if (item.discount > 0) {
+            discountedProducts.push(item);
+          }
+        }
+        return discountedProducts;
+      case "SET_STOCKED_PRODUCTS":
+        // change state to stocked products
+        const stockedProducts = [];
+        for (const item of action.products) {
+          if (item.stock === true) {
+            stockedProducts.push(item);
+          }
+        }
+        return stockedProducts;
+      case "SET_SPECIALS_PRODUCTS":
+        // Determine specials, for now is whatever is on stock and discounted
+        const specialsProducts = [];
+        for (const item of action.products) {
+          if (item.stock === true &amp;&amp; item.discount > 0) {
+            specialsProducts.push(item);
+          }
+        }
+        return specialsProducts;
+      default:
+        // Put an error into console if unknown action
+        throw new Error("Unknown action: ${action.type}");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+/**
+ *
+ * @param {*} state
+ * @param {*} action
+ * @returns state reducer for input field errors
+ */
+export const errorFieldsReducer = (state, action) => {
+  let trimmedInputFields = null;
+  let currentErrors = null;
+  // Switch for errorFields reducer
+  switch (action.type) {
+    case "SIGNUP_VALIDATE_INPUT_FIELDS":
+      trimmedInputFields = trimFields(action.value);
+      currentErrors = signupInputValidation(trimmedInputFields);
+      return currentErrors;
+    case "PROFILECHANGE_VALIDATE_INPUT_FIELDS":
+      trimmedInputFields = trimFields(action.value);
+      currentErrors = profileChangeInputValidation(trimmedInputFields);
+      return currentErrors;
+    case "LOGIN_VALIDATE_INPUT_FIELDS":
+      trimmedInputFields = trimFields(action.value);
+      currentErrors = loginInputValidation(trimmedInputFields);
+      return currentErrors;
+    case "SET_ERRORS":
+      let newErrors = action.value;
+      return newErrors;
+    default:
+      // Put an error into console if unknown action
+      try {
+        throw new Error("Unknown action: ${action.type}");
+      } catch (error) {
+        console.error(error);
+      }
+  }
+  /*
+--------------------------------------------------------------
+INPUT VALIDATION FUNCTIONS
+*/
+  function signupInputValidation(trimmedInputFields) {
+    let currentErrors = initFieldsErrors(trimmedInputFields);
+    Object.keys(trimmedInputFields).forEach((key) => {
+      const inputField = trimmedInputFields[key].trim();
+      // username validation
+      if (key === "username") {
+        if (inputField.length >= 0 &amp;&amp; inputField.length &lt; 6)
+          currentErrors[key].push("Username cannot be less than 6 characters.");
+        if (inputField.length > 20)
+          currentErrors[key].push(
+            "Username cannot be more than 20 characters."
+          );
+        if (!/^\S+$/.test(inputField))
+          // Check for blank spaces
+          currentErrors[key].push("Username cannot contain blank spaces.");
+      }
+
+      // email validation
+      if (key === "email") {
+        // if email is not within format &lt;username>@&lt;emailprovider>
+        if (!/\S+@\S+\.\S+/.test(inputField))
+          currentErrors[key].push(
+            "Email is not in correct format (e.g. john123@yahoo.com)."
+          );
+        if (inputField > 255)
+          currentErrors[key].push(
+            "Email cannot be longer than 255 characters."
+          );
+      }
+
+      // password validation
+      if (key === "password") {
+        if (!/(?=.*[A-Z])/.test(inputField)) {
+          currentErrors[key].push(
+            "Password must contain at least one uppercase letter (A-Z)."
+          );
+        }
+        if (!/(?=.*[a-z])/.test(inputField)) {
+          currentErrors[key].push(
+            "Password must contain at least one lowercase letter (a-z)."
+          );
+        }
+        if (!/(?=.*[0-9])/.test(inputField)) {
+          currentErrors[key].push(
+            "Password must contain at least one digit (0-9)."
+          );
+        }
+        if (!/(?=.*[~`!@#$%^&amp;*()+=_\[\]\-{}|:;”’?/&lt;>,.])/.test(inputField)) {
+          currentErrors[key].push(
+            "Password must contain at least one special character" +
+              "(~`!@#$%^&amp;*()+=_-{}[]\\|:;”’?/&lt;>,.)."
+          );
+        }
+        if (inputField.length &lt; 12) {
+          currentErrors[key].push(
+            "Password must be greater than twelve characters."
+          );
+        }
+      }
+
+      // confirm password validation
+      if (key === "confirmPassword") {
+        if (trimmedInputFields["password"] !== inputField)
+          currentErrors[key].push("Password does not match.");
+      }
+    });
+    return currentErrors;
+  }
+
+  function loginInputValidation(trimmedInputFields) {
+    let currentErrors = initFieldsErrors(trimmedInputFields);
+    Object.keys(trimmedInputFields).forEach((key) => {
+      const inputField = trimmedInputFields[key].trim();
+
+      // email validation
+      if (key === "email") {
+        // if email is not within format &lt;username>@&lt;emailprovider>
+        if (!/\S+@\S+\.\S+/.test(inputField))
+          currentErrors[key].push(
+            "Email is not in correct format (e.g. john123@yahoo.com)."
+          );
+        if (inputField > 255)
+          currentErrors[key].push(
+            "Email cannot be longer than 255 characters."
+          );
+      }
+    });
+    // return currentErrors object
+    return currentErrors;
+  }
+  function profileChangeInputValidation(trimmedInputFields) {
+    let currentErrors = initFieldsErrors(trimmedInputFields);
+    Object.keys(trimmedInputFields).forEach((key) => {
+      const inputField = trimmedInputFields[key].trim();
+
+      // username validation
+      if (key === "username") {
+        if (inputField.length >= 0 &amp;&amp; inputField.length &lt; 6) {
+          currentErrors[key].push("Username cannot be less than 6 characters.");
+        }
+        if (inputField.length > 20)
+          currentErrors[key].push(
+            "Username cannot be more than 20 characters."
+          );
+        if (!/^\S+$/.test(inputField))
+          // Check for blank spaces
+          currentErrors[key].push("Username cannot contain blank spaces.");
+      }
+
+      // email validation
+      if (key === "email") {
+        // if email is not within format &lt;username>@&lt;emailprovider>
+        if (!/\S+@\S+\.\S+/.test(inputField))
+          currentErrors[key].push(
+            "Email is not in correct format (e.g. john123@yahoo.com)."
+          );
+        if (inputField > 255)
+          currentErrors[key].push(
+            "Email cannot be longer than 255 characters."
+          );
+      }
+
+      // currPassword validation
+      if (key === "currPassword") {
+        if (
+          inputField === "" &amp;&amp;
+          (trimmedInputFields.newPassword !== "" ||
+            trimmedInputFields.confirmNewPassword !== "")
+        ) {
+          currentErrors[key].push("Please enter your current password.");
+        }
+      }
+
+      // newPassword validation
+      if (key === "newPassword") {
+        if (inputField.length > 0) {
+          if (!/(?=.*[A-Z])/.test(inputField))
+            currentErrors[key].push(
+              "Password must contain at least one uppercase letter (A-Z)."
+            );
+
+          if (!/(?=.*[a-z])/.test(inputField))
+            currentErrors[key].push(
+              "Password must contain at least one lowercase letter (a-z)."
+            );
+
+          if (!/(?=.*[0-9])/.test(inputField))
+            currentErrors[key].push(
+              "Password must contain at least one digit (0-9)."
+            );
+          if (!/(?=.*[~`!@#$%^&amp;*()+=_\[\]\-{}|:;”’?/&lt;>,.])/.test(inputField))
+            currentErrors[key].push(
+              "Password must contain at least one special character" +
+                "(~`!@#$%^&amp;*()+=_-{}[]\\|:;”’?/&lt;>,.)."
+            );
+
+          if (inputField.length &lt; 12)
+            currentErrors[key].push(
+              "Password must be greater than twelve characters."
+            );
+        }
+      }
+
+      // confirmNewPassword validation
+      if (key === "confirmNewPassword") {
+        if (trimmedInputFields["newPassword"] !== inputField)
+          currentErrors[key].push("Password does not match.");
+      }
+
+      // headline validation
+      if (key === "headline") {
+        if (inputField.length > 255)
+          currentErrors[key].push(
+            "Headline cannot be longer than 255 characters."
+          );
+      }
+
+      // bio validation
+      if (key === "bio") {
+        if (inputField.length > 512)
+          currentErrors[key].push(
+            "Biography should not be longer than 512 characters."
+          );
+      }
+
+      // interests validation
+      if (key === "interests") {
+        if (inputField.length > 512)
+          currentErrors[key].push(
+            "Interests should not be longer than 512 characters."
+          );
+      }
+    });
+    // return currentErrors object
+    return currentErrors;
+  }
+};
+
+// Helper method to calculate the final price of an item, taking into account
+// any discounts (or lack thereof)
+function finalPrice(cartItem = null) {
+  const discount = cartItem.discount;
+  const price = cartItem.price;
+  const quantity = cartItem.quantity;
+  const final = (price * (1 - discount / 100.0)).toFixed(2);
+
+  if (discount > 0) {
+    return (
+      &lt;p>
+        &lt;s className="text-danger">${price}&lt;/s> ${final}
+        &lt;span className="text-secondary">x {quantity}&lt;/span>
+      &lt;/p>
+    );
+  } else {
+    return (
+      &lt;p>
+        ${price} &lt;span className="text-secondary">x {quantity}&lt;/span>
+      &lt;/p>
+    );
+  }
+}
+// Cart items represented in table. Placed into array which is returned.
+export const CartItems = (props, { onChangeCart }) => {
+  const cartItems = props.cartItems;
+  // Destructure onChangeCart from props
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+
+  const rows = [];
+  let total = 0;
+  let count = 0;
+  for (const cartItem of cartItems) {
+    const discount = cartItem.discount;
+    const price = parseFloat(cartItem.price).toFixed(2);
+    const quantity = cartItem.quantity;
+    const final = (price * (1 - discount / 100.0)).toFixed(2);
+    const sum = final * quantity;
+
+    rows.push(
+      &lt;tr key={count}>
+        {/* Use the loop index i to generate unique keys */}
+        &lt;th scope="row">{count + 1}&lt;/th>
+        &lt;td>{cartItem.product_name}&lt;/td>
+        &lt;td>{finalPrice(cartItem)}&lt;/td>
+        &lt;td>${sum.toFixed(2)}&lt;/td>
+        &lt;td className="checkout-button">
+          &lt;button
+            className="btn btn-danger cart-remove"
+            onClick={() =>
+              cartItems.items.length > 1
+                ? onChangeCart({
+                    product_name: cart_repo.getCurrentCart().product_name,
+                    items: cartItems.items.filter(
+                      (item) => item.product_name !== cartItem.product_name
+                    ),
+                  })
+                : localStorage.setItem(
+                    "CART",
+                    JSON.stringify(
+                      onChangeCart({
+                        product_name: cart_repo.getCurrentCart().product_name,
+                        items: [],
+                      })
+                    )
+                  )
+            }
+          >
+            &amp;#10005;
+          &lt;/button>
+        &lt;/td>
+      &lt;/tr>
+    );
+
+    total += sum;
+    localStorage.setItem("CART", JSON.stringify(cartItems));
+  }
+
+  rows.push(
+    &lt;tr key="total">
+      &lt;td colSpan="3" className="table-info">&lt;/td>
+      &lt;td className="table-info">${total.toFixed(2)}&lt;/td>
+      &lt;td className="table-info">&lt;/td>
+    &lt;/tr>
+  );
+
+  return rows;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CartBox">CartBox</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#GrowInformation">GrowInformation</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#LoginBox">LoginBox</a></li><li><a href="global.html#Navbar">Navbar</a></li><li><a href="global.html#ShopItemBox">ShopItemBox</a></li><li><a href="global.html#errorFieldsReducer">errorFieldsReducer</a></li><li><a href="global.html#getMessage">getMessage</a></li><li><a href="global.html#initFieldsErrors">initFieldsErrors</a></li><li><a href="global.html#inputFieldsReducer">inputFieldsReducer</a></li><li><a href="global.html#productsReducer">productsReducer</a></li><li><a href="global.html#touchedFieldsReducer">touchedFieldsReducer</a></li><li><a href="global.html#trimFields">trimFields</a></li><li><a href="global.html#useNotification">useNotification</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sun Jun 02 2024 17:56:13 GMT+1000 (Australian Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

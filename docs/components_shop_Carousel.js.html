@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/shop/Carousel.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/shop/Carousel.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState, useRef, useCallback, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+
+import { TextCard, ShopItemBox } from "../shop";
+import { currentSessionContext } from "../../contexts/currentSessionContext";
+import { cartAddItem, searchUser } from "../../data/repository";
+
+/**Carousel component that displays cards/boxes for display
+ *
+ * @param {*} props
+ * @returns JSX that displays cards/boxes
+ */
+const Carousel = (props) => {
+  // Props parameters that define carousel
+  const { setNotif } = useContext(currentSessionContext);
+  const { title, shopItemsRange, shopItems } = props;
+  const navigate = useNavigate();
+
+  const addToCart = async (item, quantity = 1) => {
+    try {
+      const user = await searchUser(
+        null,
+        JSON.parse(localStorage.getItem("user")).email
+      );
+
+      const product = {
+        product_id: item.product_id,
+        quantity: quantity,
+      };
+
+      cartAddItem(product, user.user_id);
+      setNotif("addProduct");
+    } catch (error) {
+      console.error("Couldn't add to cart because user not found:", error);
+    }
+  };
+
+  const buyNow = async (item, quantity = 1) => {
+    try {
+      const user = await searchUser(
+        null,
+        JSON.parse(localStorage.getItem("user")).email
+      );
+
+      const product = {
+        product_id: item.product_id,
+        quantity: quantity,
+      };
+
+      await cartAddItem(product, user.user_id);
+      setNotif("addProduct");
+    } catch (error) {
+      console.error("Couldn't add to cart because user not found:", error);
+    }
+
+    navigate("/cart");
+  };
+
+  // Variable for reuse
+  const shopItemsMiddleIndex = Math.floor((shopItemsRange - 1) / 2);
+  // State that holds the middle index of current shopitems displayed
+  const [currentIndex, setCurrentIndex] = useState(shopItemsMiddleIndex);
+
+  // Initialize shopItemBoxOpen as an object
+  const initialShopItemBoxStates = shopItems.reduce(
+    (acc, _, index) => ({ ...acc, [index]: false }),
+    {}
+  );
+  const [shopItemBoxOpen, setShopItemBoxOpen] = useState(
+    initialShopItemBoxStates
+  );
+
+  const direction = useRef();
+
+  // Memoize openShopItemBox and closeShopItemBox functions for efficiency
+  const openShopItemBox = useCallback(
+    (index) => {
+      setShopItemBoxOpen((prev) => ({ ...prev, [index]: true }));
+    },
+    [setShopItemBoxOpen]
+  );
+
+  const closeShopItemBox = useCallback(
+    (index) => {
+      setShopItemBoxOpen((prev) => ({ ...prev, [index]: false }));
+    },
+    [setShopItemBoxOpen]
+  );
+
+  const shiftLeft = () => {
+    if (currentIndex > 0 + shopItemsMiddleIndex) {
+      setCurrentIndex(currentIndex - 1);
+      direction.current = "left";
+    }
+  };
+
+  const shiftRight = () => {
+    if (
+      currentIndex &lt;
+      shopItems.length - (1 + Math.ceil((shopItemsRange - 1) / 2))
+    ) {
+      setCurrentIndex(currentIndex + 1);
+      direction.current = "right";
+    }
+  };
+
+  // Calculate the animation direction for each item based on its index and the current index of the carousel
+  const calculateAnimationDirection = (itemIndex) => {
+    if (itemIndex === currentIndex) return 0; // No animation for the center item
+    return itemIndex &lt; currentIndex ? -25 : 25; // Move left or right
+  };
+
+  return (
+    &lt;div className="row quaternary-colour">
+      {/* Backdrop and dropin box */}
+      &lt;AnimatePresence>
+        {Object.entries(shopItemBoxOpen).map(([index, isOpen]) =>
+          isOpen ? (
+            &lt;ShopItemBox
+              key={index}
+              item={shopItems[index]}
+              isOpen={isOpen}
+              handleClose={() => closeShopItemBox(index)}
+              buyNow={buyNow}
+              addToCart={addToCart}
+            />
+          ) : null
+        )}
+      &lt;/AnimatePresence>
+
+      &lt;div className="column-content">
+        {/* If shopitems is null (when user deletes localStorage, display error message) */}
+        {shopItems == null ? (
+          &lt;div className="fatal-error">
+            &lt;h1>localStorage was deleted, cannot show stock.&lt;/h1>
+            &lt;h1>Please refresh website.&lt;/h1>
+          &lt;/div>
+        ) : (
+          &lt;motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1, transition: { duration: 1.3 } }}
+          >
+            &lt;h1>{title}&lt;/h1>
+            &lt;span className="profile-change-small-text">
+              Click on the images for more information
+            &lt;/span>
+            &lt;hr />
+            &lt;div>
+              &lt;div className="carousel-button">
+                {/* Left button */}
+                &lt;motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="left-button"
+                  onClick={shiftLeft}
+                >
+                  &lt;FontAwesomeIcon icon={faArrowLeft} />
+                &lt;/motion.button>
+                {/* Right button */}
+                &lt;motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="right-button"
+                  onClick={shiftRight}
+                >
+                  &lt;FontAwesomeIcon icon={faArrowRight} />
+                &lt;/motion.button>
+                {/* Display shopItems depending on shopItemsRange and the currentIndex */}
+                {Array.from({ length: shopItemsRange }).map((_, i) => {
+                  const index = currentIndex - shopItemsMiddleIndex + i;
+                  const item = shopItems[index];
+                  if (!item) return null; // Skip if item is undefined
+
+                  // Calculate animation direction for the current item
+                  const animateDirection = calculateAnimationDirection(index);
+
+                  return (
+                    &lt;div className="textcard" key={index}>
+                      &lt;motion.div
+                        className="card-content"
+                        key={index} // Assigning the key prop to the motion.div
+                        initial={{ x: animateDirection, opacity: 0 }}
+                        animate={{
+                          x: 0,
+                          opacity: 1,
+                          transition: { duration: 0.7 },
+                        }}
+                      >
+                        &lt;TextCard
+                          index={index}
+                          item={item}
+                          openShopItemBox={openShopItemBox}
+                          closeShopItemBox={closeShopItemBox}
+                          buyNow={buyNow}
+                          addToCart={addToCart}
+                        />
+                      &lt;/motion.div>
+                    &lt;/div>
+                  );
+                })}
+              &lt;/div>
+            &lt;/div>
+          &lt;/motion.div>
+        )}
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default Carousel;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Carousel">Carousel</a></li><li><a href="global.html#Cart">Cart</a></li><li><a href="global.html#CartBox">CartBox</a></li><li><a href="global.html#CartItems">CartItems</a></li><li><a href="global.html#CartPage">CartPage</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#LoginBox">LoginBox</a></li><li><a href="global.html#LoginPage">LoginPage</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ProfileChange">ProfileChange</a></li><li><a href="global.html#Purchase">Purchase</a></li><li><a href="global.html#Shop">Shop</a></li><li><a href="global.html#ShopItemBox">ShopItemBox</a></li><li><a href="global.html#Signup">Signup</a></li><li><a href="global.html#Summary">Summary</a></li><li><a href="global.html#TextCard">TextCard</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sun Jun 02 2024 23:20:14 GMT+1000 (Australian Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

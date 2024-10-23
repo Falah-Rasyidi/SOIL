@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/login/Login.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/login/Login.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useReducer, useEffect, useRef, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+import {
+  inputFieldsReducer,
+  errorFieldsReducer,
+  initFieldsErrors,
+  trimFields,
+  touchedFieldsReducer,
+} from "../Helpers";
+import { currentSessionContext } from "../../contexts/currentSessionContext";
+import { setCurrentUser, verifyUser } from "../../data/repository";
+
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for user login
+ */
+const Login = (props) => {
+  const { setNotif } = useContext(currentSessionContext);
+
+  const navigate = useNavigate();
+
+  // Navbar props
+  const { closeLoginBox } = props;
+
+  // State that holds user input in fields
+  const initialInputFields = {
+    email: "",
+    password: "",
+  };
+  const [userInputFields, dispatchUserInputFields] = useReducer(
+    inputFieldsReducer,
+    initialInputFields
+  );
+
+  // State that contains errors for fields
+  const initialErrors = initFieldsErrors(userInputFields);
+  const [errors, dispatchErrors] = useReducer(
+    errorFieldsReducer,
+    initialErrors
+  );
+
+  // state for managing which fields have been touched by the user
+  const initialTouchedInputFields = {};
+  const [touchedInputFields, dispatchTouchedInputFields] = useReducer(
+    touchedFieldsReducer,
+    initialTouchedInputFields
+  );
+
+  // References to each input field
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  // Display errors in userInput fields
+  useEffect(() => {
+    dispatchErrors({
+      type: "LOGIN_VALIDATE_INPUT_FIELDS",
+      value: userInputFields,
+    });
+  }, [userInputFields]);
+
+  // Generic change handler
+  function handleInputFieldChange(e) {
+    dispatchUserInputFields({
+      type: "UPDATE_FIELD",
+      field: e.target.name,
+      value: e.target.value,
+    });
+  }
+  // when input field is focused (by clicking, pressing tab, etc)
+  function onChangeFocus(e) {
+    dispatchTouchedInputFields({
+      type: "SET_TOUCHED_FIELD",
+      touchedField: e.target.getAttribute("name"),
+    });
+  }
+
+  // helper function for touching a field
+  const isInputTouched = (fieldName) => {
+    return touchedInputFields[fieldName];
+  };
+
+  // checking if input fields are valid
+  function isAllInputFieldsValid(userInputFields) {
+    for (const field in errors) {
+      if (errors[field].length > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function isInputFieldValid(field) {
+    return errors[field] ? errors[field].length === 0 : true;
+  }
+
+  // Submit handler
+  async function onSubmit(e) {
+    e.preventDefault();
+    try {
+      const trimmedInputFields = trimFields(userInputFields);
+      const isValid = isAllInputFieldsValid(userInputFields);
+      const login = {
+        email: trimmedInputFields.email.toLowerCase(),
+        password: trimmedInputFields.password,
+      };
+      // If invalid do the following
+      if (!isValid) {
+        // Focus on the input field with the error in order
+        if (errors.email.length > 0) {
+          emailRef.current.focus();
+        } else if (errors.password.length > 0) {
+          passwordRef.current.focus();
+        }
+      }
+      // If valid do the following
+      else if (isValid) {
+        // verify login details
+        const user = await verifyUser(login.email, login.password);
+        console.log("LOGGED IN USER IS: " + JSON.stringify(user));
+
+        // if user is null, create an error
+        if (user === null) {
+          throw new Error("Login details are incorrect");
+        }
+        // will set current user to null if email and password are incorrect
+        setCurrentUser(user);
+        setNotif("login");
+        navigate("/profile");
+        closeLoginBox();
+      }
+    } catch (error) {
+      console.error("Error logging in:", error);
+
+      // add an error to error state
+      dispatchErrors({
+        type: "SET_ERRORS",
+        value: {
+          ...errors,
+          error: ["Invalid username or password"],
+        },
+      });
+      // Focus on email input field to prompt re-input
+      emailRef.current.focus();
+    }
+  }
+
+  return (
+    &lt;div className="frame-login">
+      &lt;h1>Login&lt;/h1>
+      &lt;hr />
+      &lt;div>
+        &lt;form onSubmit={onSubmit}>
+          &lt;div className="form-group my-2">
+            &lt;label htmlFor="email" className="control-label">
+              Email
+            &lt;/label>
+            &lt;input
+              name="email"
+              id="email"
+              ref={emailRef}
+              className={`form-control ${
+                !isInputTouched("email")
+                  ? "is-neutral"
+                  : isInputFieldValid("email")
+                  ? "is-valid"
+                  : "is-invalid"
+              }`}
+              value={userInputFields.email}
+              onChange={handleInputFieldChange}
+              onFocus={onChangeFocus}
+              required
+            />
+            &lt;div className="invalid-feedback">
+              &lt;ul>
+                {errors.email.map((error, index) => (
+                  &lt;li key={index}>{error}&lt;/li>
+                ))}
+              &lt;/ul>
+            &lt;/div>
+          &lt;/div>
+
+          &lt;div className="form-group my-2">
+            &lt;label htmlFor="password" className="control-label">
+              Password
+            &lt;/label>
+            &lt;input
+              type="password"
+              name="password"
+              id="password"
+              ref={passwordRef}
+              className={`form-control ${
+                !isInputTouched("password")
+                  ? "is-neutral"
+                  : isInputFieldValid("password")
+                  ? "is-neutral"
+                  : "is-invalid"
+              }`}
+              value={userInputFields.password}
+              onChange={handleInputFieldChange}
+              onFocus={onChangeFocus}
+              required
+            />
+          &lt;/div>
+
+          &lt;Link to="/signup" onClick={closeLoginBox}>
+            Don't have an account?
+          &lt;/Link>
+
+          &lt;div className="text-danger">
+            {/* {errors.map((error, index) => (
+                  &lt;li key={index}>{error}&lt;/li>
+                ))} */}
+            &lt;p>{errors.error}&lt;/p>
+          &lt;/div>
+
+          &lt;div className="form-group">
+            &lt;input type="submit" className="btn btn-primary" value="Login" />
+          &lt;/div>
+        &lt;/form>
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default Login;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Carousel">Carousel</a></li><li><a href="global.html#Cart">Cart</a></li><li><a href="global.html#CartBox">CartBox</a></li><li><a href="global.html#CartItems">CartItems</a></li><li><a href="global.html#CartPage">CartPage</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#LoginBox">LoginBox</a></li><li><a href="global.html#LoginPage">LoginPage</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ProfileChange">ProfileChange</a></li><li><a href="global.html#Purchase">Purchase</a></li><li><a href="global.html#Shop">Shop</a></li><li><a href="global.html#ShopItemBox">ShopItemBox</a></li><li><a href="global.html#Signup">Signup</a></li><li><a href="global.html#Summary">Summary</a></li><li><a href="global.html#TextCard">TextCard</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sun Jun 02 2024 23:20:14 GMT+1000 (Australian Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

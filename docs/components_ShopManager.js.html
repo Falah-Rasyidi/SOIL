@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ShopManager.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ShopManager.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, {
+  useState,
+  useEffect,
+  useRef,
+  useReducer,
+  useCallback,
+  useContext,
+} from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { ThreeDots } from "react-loading-icons";
+
+import { GrowInformation, ShopItemBox, productsReducer } from "./Helpers";
+import { currentSessionContext } from "../contexts/currentSessionContext";
+
+import {
+  getAllProducts,
+  cartAddItem,
+  deleteItem,
+  removeUser,
+  searchUser,
+} from "../data/repository";
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for home page
+ */
+export const Home = (props) => {
+  // Products state
+  const initialSpecialsProducts = [];
+  const [specialsProducts, dispatchSpecialsProducts] = useReducer(
+    productsReducer,
+    initialSpecialsProducts
+  );
+
+  useEffect(() => {
+    // Scroll to the top of the page when the component mounts
+    window.scrollTo(0, 0);
+
+    const setProducts = async () => {
+      // Retrieve all shop items
+      const products = JSON.parse(await getAllProducts());
+      // Determine specials, for now is whatever is on stock and discounted
+      dispatchSpecialsProducts({
+        type: "SET_SPECIALS_PRODUCTS",
+        products: products,
+      });
+    };
+
+    // call function to retrieve products
+    setProducts();
+  }, []);
+
+  return (
+    &lt;div>
+      {/* Landing page splash video */}
+      &lt;motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1, transition: { duration: 1 } }}
+      >
+        &lt;div className="background-video font-logo">
+          Redefining Convenience with Nature's Bounty
+        &lt;/div>
+      &lt;/motion.div>
+
+      {/* Green border after video */}
+      &lt;div className="video-border">&lt;/div>
+
+      {/* Content of page, carousel and growable vegetables */}
+      &lt;div className="content">
+        {specialsProducts.length > 0 ? (
+          &lt;Carousel
+            title={"Look at our weekly specials!"}
+            shopItemsRange={3}
+            shopItems={specialsProducts}
+          />
+        ) : (
+          &lt;>
+            {/* carousel loading indicator */}
+            &lt;ThreeDots />
+          &lt;/>
+        )}
+        &lt;GrowInformation />
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export const Shop = (props) => {
+  // Products state
+  const initialProducts = [];
+  const [allProducts, dispatchAllProducts] = useReducer(
+    productsReducer,
+    initialProducts
+  );
+  const [discountedProducts, dispatchDiscountedProducts] = useReducer(
+    productsReducer,
+    initialProducts
+  );
+  const [stockedProducts, dispatchStockedProducts] = useReducer(
+    productsReducer,
+    initialProducts
+  );
+  useEffect(() => {
+    // Scroll to the top of the page when the component mounts
+    window.scrollTo(0, 0);
+
+    const setProducts = async () => {
+      // Retrieve all shop items
+      const products = JSON.parse(await getAllProducts());
+      // change all products state
+      dispatchAllProducts({ type: "SET_ALL_PRODUCTS", products: products });
+      // change discounted products state
+      dispatchDiscountedProducts({
+        type: "SET_DISCOUNTED_PRODUCTS",
+        products: products,
+      });
+      // change stocked products state
+      dispatchStockedProducts({
+        type: "SET_STOCKED_PRODUCTS",
+        products: products,
+      });
+    };
+
+    // call function to retrieve products
+    setProducts();
+  }, []);
+
+  return (
+    // Body of shop component
+    &lt;div>
+      &lt;div className="content">
+        {stockedProducts.length > 0 ? (
+          &lt;Carousel
+            title={"Stock that we recommend!"}
+            shopItemsRange={3}
+            shopItems={stockedProducts}
+          />
+        ) : (
+          &lt;>
+            {/* carousel loading indicator */}
+            &lt;ThreeDots />
+          &lt;/>
+        )}
+        {discountedProducts.length > 0 ? (
+          &lt;Carousel
+            title={"Our best sellers!"}
+            shopItemsRange={2}
+            shopItems={discountedProducts}
+          />
+        ) : (
+          &lt;>
+            {/* carousel loading indicator */}
+            &lt;ThreeDots />
+          &lt;/>
+        )}
+        {allProducts.length > 0 ? (
+          &lt;Carousel
+            title={"Our full selection!"}
+            shopItemsRange={4}
+            shopItems={allProducts}
+          />
+        ) : (
+          &lt;>
+            {/* carousel loading indicator */}
+            &lt;ThreeDots />
+          &lt;/>
+        )}
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for diet plan page
+ */
+export const DietPlanInput = (props) => {
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+
+  // const [gender, setGender] = useState("");
+  // const [age, setAge] = useState(-1);
+  // const [height, setHeight] = useState(-1);
+  // const [weight, setWeight] = useState(-1);
+  // const [activityLevel, setActivityLevel] = useState("");
+  // const [diet, setDiet] = useState("");
+  // const [healthGoals, setHealthGoals] = useState([]);
+  const [userProfile, setUserProfile] = useState({
+    age: -1,
+    height: -1,
+    weight: -1,
+    activityLevel: "",
+    diet: "",
+    healthGoals: [],
+  });
+
+  const formRef = useRef({
+    age: -1,
+    height: -1,
+    weight: -1,
+    activityLevel: "",
+    diet: "",
+    healthGoals: [],
+  });
+
+  const onChangeAge = (e) => {
+    setUserProfile({
+      ...userProfile,
+      age: e.target.value,
+    });
+    // formRef.current.age = e.target.value;
+    // setAge(e.target.value);
+  };
+  const onChangeHeight = (e) => {
+    setUserProfile({
+      ...userProfile,
+      height: e.target.value,
+    });
+    // formRef.current.height = e.target.value;
+    // setHeight(e.target.value);
+  };
+  const onChangeWeight = (e) => {
+    setUserProfile({
+      ...userProfile,
+      weight: e.target.value,
+    });
+    // formRef.current.weight = e.target.value;
+    // setWeight(e.target.value);
+  };
+  const onChangeActivityLevel = (e) => {
+    setUserProfile({
+      ...userProfile,
+      activityLevel: e.target.value,
+    });
+    // formRef.current.activityLevel = e.target.value;
+    // setActivityLevel(e.target.value);
+  };
+  const onChangeDiet = (e) => {
+    setUserProfile({
+      ...userProfile,
+      diet: e.target.value,
+    });
+    // formRef.current.diet = e.target.value;
+    // setDiet(e.target.value);
+  };
+  const onChangeHealthGoals = (e) => {
+    setUserProfile({
+      ...userProfile,
+      healthGoals: e.target.value,
+    });
+    // formRef.current.healthGoals = e.target.value;
+    // setHealthGoals(e.target.value);
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const user = JSON.parse(user_repo.getCurrentUser());
+    user.gender = userProfile.gender;
+    user.age = userProfile.age;
+    user.height = userProfile.height;
+    user.weight = userProfile.weight;
+    user.activityLevel = userProfile.activityLevel;
+    user.diet = userProfile.diet;
+    user.goals = userProfile.healthGoals;
+    user_repo.modifyUser(user);
+  };
+
+  return (
+    &lt;div className="frame">
+      &lt;form onSubmit={onSubmit}>
+        &lt;h4>Basic information&lt;/h4>
+        &lt;div className="diet-basic-information">
+          &lt;div className="form-group">
+            &lt;label>Gender&lt;/label>
+            &lt;select className="form-control" defaultValue="" required>
+              &lt;option value="" disabled>
+                Select...
+              &lt;/option>
+              &lt;option value="male">Male&lt;/option>
+              &lt;option value="female">Female&lt;/option>
+            &lt;/select>
+          &lt;/div>
+          &lt;div className="form-group">
+            &lt;label>Age (years)&lt;/label>
+            &lt;input
+              type="number"
+              className="form-control"
+              min="1"
+              placeholder="Enter age"
+              onChange={onChangeAge}
+              required
+            />
+            &lt;div className="invalid-feedback">Please enter an age&lt;/div>
+          &lt;/div>
+          &lt;div className="form-group">
+            &lt;label>Height (cm)&lt;/label>
+            &lt;input
+              type="number"
+              className="form-control"
+              min="1"
+              placeholder="Enter height"
+              onChange={onChangeHeight}
+              required
+            />
+            &lt;div className="invalid-feedback">Please enter a height&lt;/div>
+          &lt;/div>
+          &lt;div className="form-group">
+            &lt;label>Weight (kg)&lt;/label>
+            &lt;input
+              type="number"
+              className="form-control"
+              min="1"
+              placeholder="Enter weight"
+              onChange={onChangeWeight}
+              required
+            />
+            &lt;div className="invalid-feedback">Please enter a weight&lt;/div>
+          &lt;/div>
+        &lt;/div>
+        &lt;hr />
+
+        &lt;h4>Goals&lt;/h4>
+        &lt;div className="diet-goals">
+          &lt;div className="form-group">
+            &lt;label>Activity Level&lt;/label>
+            &lt;select
+              className="form-control"
+              value={userProfile.activityLevel}
+              onChange={onChangeActivityLevel}
+              required
+            >
+              &lt;option value="" disabled>
+                Select...
+              &lt;/option>
+              &lt;option value="Sedentary">Sedentary&lt;/option>
+              &lt;option value="Occasionally Active">Occasionally Active&lt;/option>
+              &lt;option value="Regularly Active">Regularly Active&lt;/option>
+              &lt;option value="Very Active">Very Active&lt;/option>
+            &lt;/select>
+
+            &lt;div className="invalid-feedback">
+              Please specify activity level
+            &lt;/div>
+          &lt;/div>
+          &lt;div className="form-group">
+            &lt;label>Dietery Preferences&lt;/label>
+            &lt;select
+              className="form-control"
+              value={userProfile.diet}
+              onChange={onChangeDiet}
+              required
+            >
+              &lt;option value="" disabled>
+                Select...
+              &lt;/option>
+              &lt;option>None&lt;/option>
+              &lt;option>Vegetarian&lt;/option>
+              &lt;option>Vegan&lt;/option>
+              &lt;option>Pescetarian&lt;/option>
+              &lt;option>Dairy-free&lt;/option>
+              &lt;option>Gluten-free&lt;/option>
+              &lt;option>Paleo&lt;/option>
+              &lt;option>Keto&lt;/option>
+              &lt;option>Kosher&lt;/option>
+              &lt;option>Halal&lt;/option>
+            &lt;/select>
+            &lt;div className="invalid-feedback">
+              Please specify dietery preferences
+            &lt;/div>
+          &lt;/div>
+          &lt;div className="form-group">
+            &lt;label>Health Goals&lt;/label>
+            &lt;input
+              className="form-control"
+              value={"Select health goals"}
+              placeholder="Enter a health goal"
+              onChange={onChangeHealthGoals}
+              required
+            />
+            &lt;div className="invalid-feedback">
+              Please specify at least one health goal
+            &lt;/div>
+          &lt;/div>
+        &lt;/div>
+
+        &lt;div className="form-group">
+          &lt;input
+            type="submit"
+            className="btn btn-primary my-3"
+            value="Submit"
+          />
+        &lt;/div>
+      &lt;/form>
+    &lt;/div>
+  );
+};
+
+export const Carousel = (props) => {
+  // Props parameters that define carousel
+  const { title, shopItemsRange, shopItems } = props;
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+  const navigate = useNavigate();
+
+  const addToCart = async (item, quantity = 1) => {
+    // cart_repo.addToCart(item, quantity);
+    try {
+      const user = await searchUser(
+        null,
+        JSON.parse(localStorage.getItem("user")).email
+      );
+
+      const product = {
+        product_id: item.product_id,
+        quantity: quantity,
+      };
+
+      cartAddItem(product, user.user_id);
+    } catch (error) {
+      console.error("Couldn't add to cart because user not found:", error);
+    }
+  };
+
+  const buyNow = async (item, quantity = 1) => {
+    // cart_repo.addToCart(item, quantity);
+    try {
+      const user = await searchUser(null, localStorage.getItem("user").email);
+      const product = {
+        user_id: user.user_id,
+        product_id: item.product_id,
+        product_name: item.name,
+        price: item.price,
+        quantity: 1,
+        discount: item.discount,
+      };
+
+      cartAddItem(product);
+    } catch (error) {
+      console.error("Couldn't add to cart because user not found:", error);
+    }
+
+    navigate("/cart");
+  };
+
+  // Variable for reuse
+  const shopItemsMiddleIndex = Math.floor((shopItemsRange - 1) / 2);
+  // State that holds the middle index of current shopitems displayed
+  const [currentIndex, setCurrentIndex] = useState(shopItemsMiddleIndex);
+
+  // Initialize shopItemBoxOpen as an object
+  const initialShopItemBoxStates = shopItems.reduce(
+    (acc, _, index) => ({ ...acc, [index]: false }),
+    {}
+  );
+  const [shopItemBoxOpen, setShopItemBoxOpen] = useState(
+    initialShopItemBoxStates
+  );
+
+  const direction = useRef();
+
+  // Memoize openShopItemBox and closeShopItemBox functions for efficiency
+  const openShopItemBox = useCallback(
+    (index) => {
+      setShopItemBoxOpen((prev) => ({ ...prev, [index]: true }));
+    },
+    [setShopItemBoxOpen]
+  );
+
+  const closeShopItemBox = useCallback(
+    (index) => {
+      setShopItemBoxOpen((prev) => ({ ...prev, [index]: false }));
+    },
+    [setShopItemBoxOpen]
+  );
+
+  const shiftLeft = () => {
+    if (currentIndex > 0 + shopItemsMiddleIndex) {
+      setCurrentIndex(currentIndex - 1);
+      direction.current = "left";
+    }
+  };
+
+  const shiftRight = () => {
+    if (
+      currentIndex &lt;
+      shopItems.length - (1 + Math.ceil((shopItemsRange - 1) / 2))
+    ) {
+      setCurrentIndex(currentIndex + 1);
+      direction.current = "right";
+    }
+  };
+
+  // Calculate the animation direction for each item based on its index and the current index of the carousel
+  const calculateAnimationDirection = (itemIndex) => {
+    if (itemIndex === currentIndex) return 0; // No animation for the center item
+    return itemIndex &lt; currentIndex ? -25 : 25; // Move left or right
+  };
+
+  return (
+    &lt;div className="row quaternary-colour">
+      {/* Backdrop and dropin box */}
+      &lt;AnimatePresence>
+        {Object.entries(shopItemBoxOpen).map(([index, isOpen]) =>
+          isOpen ? (
+            &lt;ShopItemBox
+              key={index}
+              item={shopItems[index]}
+              isOpen={isOpen}
+              handleClose={() => closeShopItemBox(index)}
+              buyNow={buyNow}
+              addToCart={addToCart}
+            />
+          ) : null
+        )}
+      &lt;/AnimatePresence>
+
+      &lt;div className="column-content">
+        {/* If shopitems is null (when user deletes localStorage, display error message) */}
+        {shopItems == null ? (
+          &lt;div className="fatal-error">
+            &lt;h1>localStorage was deleted, cannot show stock.&lt;/h1>
+            &lt;h1>Please refresh website.&lt;/h1>
+          &lt;/div>
+        ) : (
+          &lt;motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1, transition: { duration: 1.3 } }}
+          >
+            &lt;h1>{title}&lt;/h1>
+            &lt;span className="profile-change-small-text">
+              Click on the images for more information
+            &lt;/span>
+            &lt;hr />
+            &lt;div>
+              &lt;div className="carousel-button">
+                {/* Left button */}
+                &lt;motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="left-button"
+                  onClick={shiftLeft}
+                >
+                  &lt;FontAwesomeIcon icon={faArrowLeft} />
+                &lt;/motion.button>
+                {/* Right button */}
+                &lt;motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="right-button"
+                  onClick={shiftRight}
+                >
+                  &lt;FontAwesomeIcon icon={faArrowRight} />
+                &lt;/motion.button>
+                {/* Display shopItems depending on shopItemsRange and the currentIndex */}
+                {Array.from({ length: shopItemsRange }).map((_, i) => {
+                  const index = currentIndex - shopItemsMiddleIndex + i;
+                  const item = shopItems[index];
+                  if (!item) return null; // Skip if item is undefined
+
+                  // Calculate animation direction for the current item
+                  const animateDirection = calculateAnimationDirection(index);
+
+                  return (
+                    &lt;div className="textcard" key={index}>
+                      &lt;motion.div
+                        className="card-content"
+                        key={index} // Assigning the key prop to the motion.div
+                        initial={{ x: animateDirection, opacity: 0 }}
+                        animate={{
+                          x: 0,
+                          opacity: 1,
+                          transition: { duration: 0.7 },
+                        }}
+                      >
+                        &lt;TextCard
+                          index={index}
+                          item={item}
+                          openShopItemBox={openShopItemBox}
+                          closeShopItemBox={closeShopItemBox}
+                          buyNow={buyNow}
+                          addToCart={addToCart}
+                        />
+                      &lt;/motion.div>
+                    &lt;/div>
+                  );
+                })}
+              &lt;/div>
+            &lt;/div>
+          &lt;/motion.div>
+        )}
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+const TextCard = (props) => {
+  const { index, item, openShopItemBox } = props;
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+  const addToCart = props.addToCart;
+  const buyNow = props.buyNow;
+
+  const { fullPrice, discountedPrice, discountString } =
+    cart_repo.getShopItemPriceString(item);
+  return (
+    &lt;div>
+      &lt;motion.div
+        className="carousel-image"
+        whileHover={{ scale: 1.031 }}
+        whileTap={{ scale: 1.1 }}
+      >
+        &lt;motion.img
+          whileHover={{ scale: 1.031 }}
+          src={item.img_src}
+          alt={item.name}
+          onClick={() => openShopItemBox(index)}
+        />
+      &lt;/motion.div>
+
+      &lt;div>
+        &lt;h2>{item.product_name}&lt;/h2>
+        {/* indicated price, including discount*/}
+        &lt;div className="textcard-price">
+          &lt;span className="dollar-sign">{discountedPrice.currency}&lt;/span>
+          &lt;span className="dollars">{discountedPrice.dollars}&lt;/span>
+          &lt;span className="cents">{discountedPrice.cents}&lt;/span>
+          {/* if there is a discount, show full price as slashed */}
+          {item.discount > 0 &amp;&amp; (
+            &lt;>
+              &lt;span className="full-price-slashed">
+                &lt;span className="slashed-dollar-sign">
+                  {fullPrice.currency}
+                &lt;/span>
+                &lt;span className="slashed-dollars">{fullPrice.dollars}&lt;/span>
+                &lt;span className="slashed-cents">{fullPrice.cents}&lt;/span>
+              &lt;/span>
+              &lt;span className="discount">{discountString}&lt;/span>
+            &lt;/>
+          )}
+        &lt;/div>
+      &lt;/div>
+      &lt;hr />
+      &lt;div className="card-content-details">
+        {/* Tag content of text cards */}
+        &lt;div className="card-content-tags">
+          &lt;ul>
+            {JSON.parse(item.tags).map((tag, tagIndex) => (
+              &lt;li key={tagIndex}>{tag}&lt;/li>
+            ))}
+          &lt;/ul>
+        &lt;/div>
+        &lt;div className="card-content-submit">
+          {cart_repo.getCurrentCart() !== null ? (
+            // If shopitem does not have stock change add to cart to out of stock
+            item.stock ? (
+              &lt;button
+                className="btn btn-primary card-content-buttons"
+                onClick={() => addToCart(item)}
+              >
+                Add to Cart
+              &lt;/button>
+            ) : (
+              &lt;button className="btn btn-secondary" disabled>
+                Out of Stock
+              &lt;/button>
+            )
+          ) : (
+            &lt;button className="btn btn-secondary" disabled>
+              Log in to purchase
+            &lt;/button>
+          )}
+          {cart_repo.getCurrentCart() !== null ? (
+            // If shopitem does not have stock, remove buy now button
+            item.stock ? (
+              &lt;button
+                className="btn btn-warning card-content-buttons"
+                onClick={() => buyNow(item)}
+              >
+                Buy Now
+              &lt;/button>
+            ) : (
+              ""
+            )
+          ) : (
+            ""
+          )}
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  );
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Cart">Cart</a></li><li><a href="global.html#CartBox">CartBox</a></li><li><a href="global.html#CartPage">CartPage</a></li><li><a href="global.html#DietPlanInput">DietPlanInput</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#GrowInformation">GrowInformation</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#LoginBox">LoginBox</a></li><li><a href="global.html#LoginPage">LoginPage</a></li><li><a href="global.html#MyProfile">MyProfile</a></li><li><a href="global.html#Navbar">Navbar</a></li><li><a href="global.html#ProfileChange">ProfileChange</a></li><li><a href="global.html#Purchase">Purchase</a></li><li><a href="global.html#ShopItemBox">ShopItemBox</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#Summary">Summary</a></li><li><a href="global.html#errorFieldsReducer">errorFieldsReducer</a></li><li><a href="global.html#getMessage">getMessage</a></li><li><a href="global.html#initFieldsErrors">initFieldsErrors</a></li><li><a href="global.html#inputFieldsReducer">inputFieldsReducer</a></li><li><a href="global.html#productsReducer">productsReducer</a></li><li><a href="global.html#touchedFieldsReducer">touchedFieldsReducer</a></li><li><a href="global.html#trimFields">trimFields</a></li><li><a href="global.html#useNotification">useNotification</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sun Jun 02 2024 12:42:26 GMT+1000 (Australian Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

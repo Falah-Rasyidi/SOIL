@@ -1,0 +1,29 @@
+{
+  "source": {
+    "include": [
+      "React/src",
+      "React/src/components/cart",
+      "React/src/components/home",
+      "React/src/components/login",
+      "React/src/components/profile",
+      "React/src/components/purchase",
+      "React/src/components/shop",
+      "React/src/components/signup",
+      "React/src/components/summary",
+      "React/src/contexts",
+      "React/src/data",
+      "React/src/testing",
+      "Express",
+      "Express/src",
+      "Express/src/controllers",
+      "Express/src/database",
+      "Express/src/database/models",
+      "Express/src/routes"
+    ],
+    "exclude": ["node_modules"]
+  },
+  "opts": {
+    "destination": "./docs"
+  },
+  "plugins": ["plugins/markdown"]
+}

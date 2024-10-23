@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/PurchaseManager.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/PurchaseManager.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useState, useEffect, useRef, useContext } from "react";
+
+import dayjs from "dayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Button } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+
+import { currentSessionContext } from "../contexts/currentSessionContext";
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for shopping cart page
+ */
+export const CartPage = (props) => {
+  return (
+    &lt;div className="frame">
+      &lt;Cart />
+    &lt;/div>
+  );
+};
+
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for shopping cart
+ */
+export const Cart = (props) => {
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+
+  const { closeCartBox } = props;
+
+  const currentUser = JSON.parse(user_repo.getCurrentUser());
+  const items = cart_repo.getCurrentCart();
+  const [cartItems, setCartItems] = useState(items);
+  const onChangeCart = (newCart) => {
+    setCartItems(newCart);
+    cart_repo.modifyCarts(newCart);
+    return newCart;
+  };
+
+  // Helper method to calculate the final price of an item, taking into account
+  // any discounts (or lack thereof)
+  function finalPrice(i) {
+    const discount = cartItems.items[i].discount;
+    const price = cartItems.items[i].price;
+    const quantity = cartItems.items[i].quantity;
+    const final = (price * (1 - discount / 100.0)).toFixed(2);
+
+    if (discount > 0) {
+      return (
+        &lt;p>
+          &lt;s className="text-danger">${price}&lt;/s> ${final}
+          &lt;span className="text-secondary">x {quantity}&lt;/span>
+        &lt;/p>
+      );
+    } else {
+      return (
+        &lt;p>
+          ${price} &lt;span className="text-secondary">x {quantity}&lt;/span>
+        &lt;/p>
+      );
+    }
+  }
+
+  // Cart items represented in table. Placed into array which is returned.
+  const CartItems = ({ onChangeCart }) => {
+    // Destructure onChangeCart from props
+    const { user_repo, cart_repo, notification, setNotif } = useContext(
+      currentSessionContext
+    );
+
+    if (!cartItems.items || cartItems.items.length === 0) {
+      return (
+        &lt;tr key="empty-cart">
+          &lt;td colSpan="4" className="text-center">
+            No items currently in cart
+          &lt;/td>
+        &lt;/tr>
+      );
+    }
+
+    const rows = [];
+    let total = 0;
+
+    for (let i = 0; i &lt; cartItems.items.length; i++) {
+      const discount = cartItems.items[i].discount;
+      const price = cartItems.items[i].price.toFixed(2);
+      const quantity = cartItems.items[i].quantity;
+      const final = (price * (1 - discount / 100.0)).toFixed(2);
+      const sum = final * quantity;
+
+      rows.push(
+        &lt;tr key={i}>
+          {/* Use the loop index i to generate unique keys */}
+          &lt;th scope="row">{i + 1}&lt;/th>
+          &lt;td>{cartItems.items[i].product_name}&lt;/td>
+          &lt;td>{finalPrice(i)}&lt;/td>
+          &lt;td>${sum.toFixed(2)}&lt;/td>
+          &lt;td className="checkout-button">
+            &lt;button
+              className="btn btn-danger cart-remove"
+              onClick={() =>
+                cartItems.items.length > 1
+                  ? onChangeCart({
+                      product_name: cart_repo.getCurrentCart().product_name,
+                      items: cartItems.items.filter(
+                        (item) =>
+                          item.product_name !== cartItems.items[i].product_name
+                      ),
+                    })
+                  : localStorage.setItem(
+                      "CART",
+                      JSON.stringify(
+                        onChangeCart({
+                          product_name: cart_repo.getCurrentCart().product_name,
+                          items: [],
+                        })
+                      )
+                    )
+              }
+            >
+              &amp;#10005;
+            &lt;/button>
+          &lt;/td>
+        &lt;/tr>
+      );
+
+      total += sum;
+      localStorage.setItem("CART", JSON.stringify(cartItems));
+    }
+
+    rows.push(
+      &lt;tr key="total">
+        &lt;td colSpan="3" className="table-info">&lt;/td>
+        &lt;td className="table-info">${total.toFixed(2)}&lt;/td>
+        &lt;td className="table-info">&lt;/td>
+      &lt;/tr>
+    );
+
+    return rows;
+  };
+
+  return (
+    &lt;div className="frame-cart">
+      &lt;h1>Hi, {currentUser.name}&lt;/h1>
+      &lt;h2>This is your cart:&lt;/h2>
+      &lt;table className="table table-borderless">
+        &lt;thead>
+          &lt;tr>
+            &lt;th scope="col">#&lt;/th>
+            &lt;th scope="col">Item &lt;/th>
+            &lt;th scope="col">
+              Price &lt;span className="text-secondary">x Quantity&lt;/span>
+            &lt;/th>
+            &lt;th scope="col">Total&lt;/th>
+            &lt;th scope="col">&lt;/th>
+          &lt;/tr>
+        &lt;/thead>
+        &lt;tbody>
+          &lt;CartItems cartItems={cartItems} onChangeCart={onChangeCart} />
+        &lt;/tbody>
+      &lt;/table>
+
+      {cart_repo.getCurrentCart().items.length !== 0 ? (
+        &lt;Link
+          to="/purchase"
+          className="text-white checkout-button"
+          onClick={closeCartBox}
+        >
+          &lt;Button>Proceed to Checkout&lt;/Button>
+        &lt;/Link>
+      ) : (
+        ""
+      )}
+    &lt;/div>
+  );
+};
+
+/**
+ *
+ * @param {*} props
+ * @returns {jsx} for purchase page
+ */
+export const Purchase = (props) => {
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+
+  const [CCNumber, setCCNumber] = useState("");
+  const [date, setDate] = useState(dayjs(Date()));
+
+  const navigate = useNavigate();
+
+  // Generic change handler
+  function onChangeNumber(e) {
+    setCCNumber(e.target.value);
+  }
+
+  // Luhn's algorithm
+  // From https://www.geeksforgeeks.org/luhn-algorithm/
+  const checkLuhn = (cardNo) => {
+    let nDigits = cardNo.length;
+    let nSum = 0;
+    let isSecond = false;
+
+    for (let i = nDigits - 1; i >= 0; i--) {
+      let d = cardNo[i].charCodeAt() - "0".charCodeAt();
+
+      if (isSecond == true) {
+        d = d * 2;
+      }
+
+      nSum += parseInt(d / 10, 10);
+      nSum += d % 10;
+
+      isSecond = !isSecond;
+    }
+
+    return nSum % 10 == 0;
+  };
+
+  // Checks that input date has not passed yet
+  // From https://www.freecodecamp.org/news/javascript-date-comparison-how-to-compare-dates-in-js/
+  const validDate = (inputDate, currentDate) => {
+    let date1 = new Date(inputDate).getTime();
+    let date2 = new Date(currentDate).getTime();
+
+    if (date1 > date2) {
+      return true;
+    }
+
+    return false;
+  };
+
+  function onSubmit(e) {
+    e.preventDefault();
+
+    if (checkLuhn(CCNumber) &amp;&amp; validDate(date, Date())) {
+      setNotif("purchase");
+      navigate("/summary");
+
+      return;
+    }
+  }
+
+  return (
+    &lt;div className="frame">
+      &lt;h2>Enter Details&lt;/h2>
+      &lt;hr />
+      &lt;form className="purchase" onSubmit={onSubmit}>
+        &lt;div>
+          &lt;label className="control-label">Card number&lt;/label>
+          &lt;input
+            type="number"
+            className="form-control"
+            value={CCNumber}
+            onChange={onChangeNumber}
+          />
+        &lt;/div>
+        &lt;div>
+          &lt;label className="control-label">Expiration date&lt;/label>
+          &lt;br />
+          &lt;DatePicker
+            label={"MM YYYY"}
+            views={["month", "year"]}
+            value={date}
+            onChange={(newDate) => setDate(newDate)}
+          />
+        &lt;/div>
+        &lt;div>
+          &lt;button type="submit" className="btn btn-primary">
+            Buy now
+          &lt;/button>
+        &lt;/div>
+      &lt;/form>
+    &lt;/div>
+  );
+};
+
+/**
+ * 'finalPrice' and 'purchaseSummary' work exactly the same and similarly to
+ * 'finalPrice' and 'CartItems' in Cart.js
+ * @see Cart.js
+ */
+export const Summary = (props) => {
+  const navigate = useNavigate();
+  const { user_repo, cart_repo, notification, setNotif } = useContext(
+    currentSessionContext
+  );
+
+  const cart = cart_repo.getCurrentCart();
+
+  // Empty dependency array means it runs only once after the initial render
+  useEffect(() => {
+    cart_repo.emptyCart(cart);
+  }, []);
+
+  function finalPrice(i) {
+    const discount = cart.items[i].discount;
+    const price = cart.items[i].price;
+    const quantity = cart.items[i].quantity;
+    const final = (price * (1 - discount / 100.0)).toFixed(2);
+
+    if (discount > 0) {
+      return (
+        &lt;p>
+          &lt;s className="text-danger">${price}&lt;/s> ${final}
+          &lt;span className="text-secondary">x {quantity}&lt;/span>
+        &lt;/p>
+      );
+    } else {
+      return (
+        &lt;p>
+          ${price} &lt;span className="text-secondary">x {quantity}&lt;/span>
+        &lt;/p>
+      );
+    }
+  }
+
+  const purchaseSummary = () => {
+    const rows = [];
+    let afterDiscount = 0.0;
+    let beforeDiscount = 0.0;
+
+    for (let i = 0; i &lt; cart.items.length; i++) {
+      const discount = cart.items[i].discount;
+      const price = cart.items[i].price.toFixed(2);
+      const quantity = cart.items[i].quantity;
+      const final = (price * (1 - discount / 100.0)).toFixed(2);
+      const sum = final * quantity;
+
+      rows.push(
+        &lt;tr key={i}>
+          &lt;th scope="row">{i + 1}&lt;/th>
+          &lt;td>{cart.items[i].name}&lt;/td>
+          &lt;td>{finalPrice(i)}&lt;/td>
+          &lt;td>${sum}&lt;/td>
+        &lt;/tr>
+      );
+
+      afterDiscount += sum;
+      beforeDiscount += price * quantity;
+    }
+    rows.push(
+      &lt;tr key="total">
+        {/* Add unique key here */}
+        &lt;td colSpan="3" className="table-info">&lt;/td>
+        &lt;td className="table-info">${afterDiscount.toFixed(2)}&lt;/td>
+        &lt;td className="table-info">&lt;/td>
+      &lt;/tr>
+    );
+
+    if (afterDiscount !== beforeDiscount) {
+      rows.push(
+        &lt;tr key="savings">
+          {/* Add unique key here */}
+          &lt;td colSpan="4" className="my-2 text-success font-weight-bold">
+            You saved: ${(beforeDiscount - afterDiscount).toFixed(2)}!
+          &lt;/td>
+        &lt;/tr>
+      );
+    }
+
+    return rows;
+  };
+
+  function returnHome(e) {
+    e.preventDefault();
+    navigate("/");
+  }
+
+  return (
+    &lt;motion.div
+      className="frame"
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1, transition: { duration: 1 } }}
+    >
+      &lt;h2>Purchase Summary&lt;/h2>
+      &lt;hr />
+      &lt;table className="table table-borderless">
+        &lt;thead>
+          &lt;tr>
+            &lt;th scope="col">#&lt;/th>
+            &lt;th scope="col">Item &lt;/th>
+            &lt;th scope="col">
+              Price &lt;span className="text-secondary">x Quantity&lt;/span>
+            &lt;/th>
+            &lt;th scope="col">Total&lt;/th>
+          &lt;/tr>
+        &lt;/thead>
+        &lt;tbody>{purchaseSummary()}&lt;/tbody>
+      &lt;/table>
+      &lt;form onSubmit={returnHome}>
+        &lt;input className="btn btn-primary" type="submit" value="Home" />
+      &lt;/form>
+    &lt;/motion.div>
+  );
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Cart">Cart</a></li><li><a href="global.html#CartBox">CartBox</a></li><li><a href="global.html#CartPage">CartPage</a></li><li><a href="global.html#DietPlanInput">DietPlanInput</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#GrowInformation">GrowInformation</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#LoginBox">LoginBox</a></li><li><a href="global.html#LoginPage">LoginPage</a></li><li><a href="global.html#MyProfile">MyProfile</a></li><li><a href="global.html#Navbar">Navbar</a></li><li><a href="global.html#ProfileChange">ProfileChange</a></li><li><a href="global.html#Purchase">Purchase</a></li><li><a href="global.html#ShopItemBox">ShopItemBox</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#Summary">Summary</a></li><li><a href="global.html#errorFieldsReducer">errorFieldsReducer</a></li><li><a href="global.html#getMessage">getMessage</a></li><li><a href="global.html#initFieldsErrors">initFieldsErrors</a></li><li><a href="global.html#inputFieldsReducer">inputFieldsReducer</a></li><li><a href="global.html#productsReducer">productsReducer</a></li><li><a href="global.html#touchedFieldsReducer">touchedFieldsReducer</a></li><li><a href="global.html#trimFields">trimFields</a></li><li><a href="global.html#useNotification">useNotification</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sun Jun 02 2024 12:42:26 GMT+1000 (Australian Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
